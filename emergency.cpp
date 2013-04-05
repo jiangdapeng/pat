@@ -1,3 +1,6 @@
+/**
+ * 1003. Emergency
+ */
 #include <iostream>
 #include <vector>
 #include <limits.h>
@@ -10,6 +13,7 @@ int dist[MAX_NODE_SIZE];
 int pre[MAX_NODE_SIZE];
 int power[MAX_NODE_SIZE];// person
 bool visited[MAX_NODE_SIZE];
+int count[MAX_NODE_SIZE]; // count shortest path number
 int n;// number of city
 
 int nearest_city()
@@ -39,13 +43,20 @@ void update_neighbor(int k)
   // update neighbor city of city k
   for(int j=0;j<n;++j)
   {
-    if(!visited[j] && road[k*n +j]>0)
+    int edge = road[k*n+j];
+    if(!visited[j] && edge>0)
     {
-      if(dist[j] > dist[k] + road[k*n+j])
+      if(dist[j] > dist[k] + edge)
       {
-        dist[j] = dist[k] + road[k*n+j];
+        dist[j] = dist[k] + edge;
         pre[j] = k;
+        count[j] = count[k];
         cout << "pre["<<j<<"]="<<k<<endl;
+      }
+      else if(dist[j] == dist[k] + edge)
+      {
+        // more than one shortest path to city j
+        count[j] += count[k];
       }
     }
   }
@@ -75,6 +86,7 @@ int main()
     dist[i] = INT_MAX; 
     visited[i] = false;
     pre[i] = -1;
+    count[i] = 0;
   }
   for(int i=0;i<n;++i)
   {
@@ -89,11 +101,10 @@ int main()
     road[c2*n + c1] = road[c1*n+c2];
   }
 
-  // start from start
+  // start from start city
   dist[start] = 0;
   pre[start] = -2;
-  visited[start] = true;
-  update_neighbor(start);
+  count[start] = 1;// one shortest path from start to start
   while(true)
   {
     int city = nearest_city();
@@ -103,6 +114,6 @@ int main()
     update_neighbor(city);
   }
   print_path(end);
-  cout << endl;
+  cout << endl << "paths:"<<count[end]<<endl;
   return 0;
 }
