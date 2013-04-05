@@ -14,6 +14,7 @@ int pre[MAX_NODE_SIZE];
 int power[MAX_NODE_SIZE];// person
 bool visited[MAX_NODE_SIZE];
 int count[MAX_NODE_SIZE]; // count shortest path number
+int sum_power[MAX_NODE_SIZE];// count the total power from start to some city
 int n;// number of city
 
 int nearest_city()
@@ -34,7 +35,7 @@ int nearest_city()
       city = i;
     }
   }
-  cout <<"nearest city:"<<city<<endl;
+  //cout <<"nearest city:"<<city<<endl;
   return city;
 }
 
@@ -51,12 +52,18 @@ void update_neighbor(int k)
         dist[j] = dist[k] + edge;
         pre[j] = k;
         count[j] = count[k];
-        cout << "pre["<<j<<"]="<<k<<endl;
+        sum_power[j] = sum_power[k] + power[j];
+        //cout << "pre["<<j<<"]="<<k<<endl;
       }
       else if(dist[j] == dist[k] + edge)
       {
         // more than one shortest path to city j
         count[j] += count[k];
+        if(sum_power[j] < sum_power[k] + power[j])
+        {
+          pre[j] = k;
+          sum_power[j] = sum_power[k] + power[j];
+        }
       }
     }
   }
@@ -105,6 +112,7 @@ int main()
   dist[start] = 0;
   pre[start] = -2;
   count[start] = 1;// one shortest path from start to start
+  sum_power[start] = power[start];
   while(true)
   {
     int city = nearest_city();
@@ -113,7 +121,9 @@ int main()
       break;
     update_neighbor(city);
   }
-  print_path(end);
-  cout << endl << "paths:"<<count[end]<<endl;
+  //print_path(end);
+  //cout << endl << "paths:"<<count[end]<<endl;
+  //cout << "max power:" << sum_power[end]<<endl;
+  cout << count[end] << " " << sum_power[end] << endl;
   return 0;
 }
